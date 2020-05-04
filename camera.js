@@ -14,7 +14,10 @@ const [play, pause, screenshot, back] = buttons;
 
 if ('mediaDevices' in navigator && navigator.mediaDevices.getUserMedia) {
 
-  const constraints = Object.entries(navigator.mediaDevices.getSupportedConstraints()).map(([key, value]) => `<div>${key}:${value}</div>`)
+  const ded = navigator.mediaDevices.getSupportedConstraints()
+  alert(JSON.stringify(ded, null, 2))
+
+  const constraints = Object.entries(ded).map(([key, value]) => `<div>${key}:${value}</div>`)
   caracteristiques.innerHTML = constraints.join('');
 }
 
@@ -101,8 +104,16 @@ const backCamera = () => {
       }
     };
     updatedConstraints.video.facingMode = 'environment'
-    updatedConstraints.video.advanced = [{ torch: true }]
-    startStream(updatedConstraints)
+    startStream(updatedConstraints).then(stream => {
+      const track = stream.getVideoTracks()[0];
+      const capabilities = track.getCapabilities()
+      if (capabilities.torch) {
+        track.applyConstraints({
+          advanced: [{ torch: true }]
+        })
+          .catch(e => console.log(e));
+      }
+    });
   }
 
 }

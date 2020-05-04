@@ -8,7 +8,7 @@ const screenshotImage = document.querySelector('img');
 const buttons = [...controls.querySelectorAll('button')];
 let streamStarted = false;
 
-const [play, pause, screenshot] = buttons;
+const [play, pause, screenshot, back] = buttons;
 
 const constraints = {
   video: {
@@ -41,24 +41,14 @@ play.onclick = () => {
     video.play();
     play.classList.add('d-none');
     pause.classList.remove('d-none');
+    back.classList.remove('d-none');
+
     return;
   }
   if ('mediaDevices' in navigator && navigator.mediaDevices.getUserMedia) {
-    const mode = cameraOptions.value.includes('back') ? 'environment' : 'user'
+
     const updatedConstraints = {
-      video: {
-        width: {
-          min: 1280,
-          ideal: 1920,
-          max: 2560,
-        },
-        height: {
-          min: 720,
-          ideal: 1080,
-          max: 1440
-        },
-        facingMode: { exact: mode }
-      },
+      ...constraints,
       deviceId: {
         exact: cameraOptions.value
       }
@@ -67,10 +57,14 @@ play.onclick = () => {
   }
 };
 
+
+
 const pauseStream = () => {
   video.pause();
   play.classList.remove('d-none');
   pause.classList.add('d-none');
+  back.classList.add('d-none');
+
 };
 
 const doScreenshot = () => {
@@ -81,8 +75,32 @@ const doScreenshot = () => {
   screenshotImage.classList.remove('d-none');
 };
 
+const backCamera = () => {
+  if (streamStarted) {
+    video.play();
+    play.classList.add('d-none');
+    pause.classList.remove('d-none');
+    back.classList.remove('d-none');
+
+    return;
+  }
+  if ('mediaDevices' in navigator && navigator.mediaDevices.getUserMedia) {
+
+    const updatedConstraints = {
+      ...constraints,
+      deviceId: {
+        exact: cameraOptions.value
+      }
+    };
+    updatedConstraints.video.facingMode = 'environment'
+    startStream(updatedConstraints);
+  }
+
+}
+
 pause.onclick = pauseStream;
 screenshot.onclick = doScreenshot;
+back.onclick = backCamera;
 
 const startStream = async (constraints) => {
   const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -95,6 +113,8 @@ const handleStream = (stream) => {
   play.classList.add('d-none');
   pause.classList.remove('d-none');
   screenshot.classList.remove('d-none');
+  back.classList.remove('d-none');
+
 
 };
 

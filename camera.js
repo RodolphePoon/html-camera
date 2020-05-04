@@ -5,10 +5,18 @@ const cameraOptions = document.querySelector('.video-options>select');
 const video = document.querySelector('video');
 const canvas = document.querySelector('canvas');
 const screenshotImage = document.querySelector('img');
+const caracteristiques = document.querySelector('.caracteristiques');
+
 const buttons = [...controls.querySelectorAll('button')];
 let streamStarted = false;
 
 const [play, pause, screenshot, back] = buttons;
+
+if ('mediaDevices' in navigator && navigator.mediaDevices.getUserMedia) {
+
+  const constraints = Object.entries(navigator.mediaDevices.getSupportedConstraints()).map(([key, value]) => `<div>${key}:${value}</div>`)
+  caracteristiques.innerHTML = constraints.join('');
+}
 
 const constraints = {
   video: {
@@ -93,7 +101,8 @@ const backCamera = () => {
       }
     };
     updatedConstraints.video.facingMode = 'environment'
-    startStream(updatedConstraints);
+    updatedConstraints.video.advanced = [{ torch: true }]
+    startStream(updatedConstraints)
   }
 
 }
@@ -105,6 +114,7 @@ back.onclick = backCamera;
 const startStream = async (constraints) => {
   const stream = await navigator.mediaDevices.getUserMedia(constraints);
   handleStream(stream);
+  return stream
 };
 
 

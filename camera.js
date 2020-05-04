@@ -15,7 +15,7 @@ const [play, pause, screenshot, back] = buttons;
 if ('mediaDevices' in navigator && navigator.mediaDevices.getUserMedia) {
 
   const ded = navigator.mediaDevices.getSupportedConstraints()
-  alert(JSON.stringify(ded, null, 2))
+  alert(ded.torch ? 'torch=true' : 'torch=false')
 
   const constraints = Object.entries(ded).map(([key, value]) => `<div>${key}:${value}</div>`)
   caracteristiques.innerHTML = constraints.join('');
